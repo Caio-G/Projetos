@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Inteligência de Dados | Hub de Dashboards</title>
+
+<!-- Tailwind CSS via CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Google Fonts: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+        },
+        colors: {
+          institucional: {
+            50: '#eef4fb',
+            100: '#d9e6f5',
+            600: '#0056b3',
+            700: '#00448f',
+            800: '#003a7a',
+            900: '#012a5c',
+          }
+        },
+        boxShadow: {
+          card: '0 1px 3px 0 rgba(0,0,0,0.06), 0 1px 2px 0 rgba(0,0,0,0.04)',
+          cardHover: '0 10px 25px -5px rgba(0,58,122,0.15), 0 8px 10px -6px rgba(0,58,122,0.08)',
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  body { font-family: 'Inter', sans-serif; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-enter {
+    animation: cardFadeIn 0.35s ease both;
+  }
+  @keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #modal-overlay {
+    transition: opacity 0.25s ease;
+  }
+  #modal-panel {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  }
+
+  .favorite-btn.is-fav i {
+    fill: #f59e0b;
+    stroke: #f59e0b;
+  }
+
+  .filter-btn.active {
+    background-color: #0056b3;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0,86,179,0.35);
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 37%, #e2e8f0 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  @keyframes shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+
+<body class="bg-slate-100 text-slate-800 antialiased">
+
+<!-- ============ BARRA DE UTILIDADES (TOPO) ============ -->
+<header class="bg-institucional-800 text-white sticky top-0 z-40 shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 gap-4">
+
+      <!-- Logo / Nome do sistema -->
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center ring-1 ring-white/20">
+          <i data-lucide="layout-dashboard" class="w-5 h-5 text-white"></i>
+        </div>
+        <div class="leading-tight hidden sm:block">
+          <p class="font-bold text-sm tracking-wide">Portal de Inteligência de Dados</p>
+          <p class="text-[11px] text-institucional-100/80">Secretaria Adjunta de Planejamento</p>
+        </div>
+      </div>
+
+      <!-- Busca -->
+      <div class="flex-1 max-w-lg">
+        <label for="search-input" class="sr-only">Buscar dashboards</label>
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-institucional-800/50"></i>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Buscar por painel, área ou palavra-chave..."
+            class="w-full rounded-full bg-white text-slate-800 text-sm pl-9 pr-4 py-2 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
+            autocomplete="off"
+          >
+        </div>
+      </div>
+
+      <!-- Perfil do usuário -->
+      <div class="flex items-center gap-3 shrink-0">
+        <button class="relative hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/10 transition">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-institucional-800"></span>
+        </button>
+        <div class="flex items-center gap-2 pl-3 border-l border-white/15">
+          <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center font-semibold text-xs">MC</div>
+          <div class="hidden md:block leading-tight">
+            <p class="text-xs font-semibold">Marina Costa</p>
+            <p class="text-[10px] text-institucional-100/70">Analista de Dados</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- ============ NAVEGAÇÃO / CATEGORIAS ============ -->
+<nav class="bg-institucional-700 text-white shadow-sm sticky top-16 z-30">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div id="filter-bar" class="flex items-center gap-2 overflow-x-auto py-2 no-scrollbar">
+      <!-- Botões de filtro inseridos via JS -->
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO / DESTAQUE ============ -->
+<section id="hero-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+  <!-- Preenchido via JS -->
+</section>
+
+<!-- ============ CONTEÚDO PRINCIPAL / GRID DE CARDS ============ -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="flex items-end justify-between mb-5">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Todos os Painéis</h2>
+      <p id="results-count" class="text-sm text-slate-500 mt-0.5">Carregando relatórios...</p>
+    </div>
+  </div>
+
+  <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Cards inseridos via JS -->
+  </div>
+
+  <!-- Estado vazio -->
+  <div id="empty-state" class="hidden flex-col items-center justify-center text-center py-20">
+    <div class="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center mb-4">
+      <i data-lucide="search-x" class="w-7 h-7 text-slate-400"></i>
+    </div>
+    <h3 class="font-semibold text-slate-700">Nenhum painel encontrado</h3>
+    <p class="text-sm text-slate-500 mt-1">Ajuste a busca ou selecione outra categoria.</p>
+  </div>
+
+</main>
+
+<!-- ============ RODAPÉ ============ -->
+<footer class="bg-institucional-900 text-institucional-100 mt-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div>
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        <span class="font-bold text-white">Portal de Inteligência de Dados</span>
+      </div>
+      <p class="text-sm text-institucional-100/70 leading-relaxed">
+        Centralizando indicadores e painéis Power BI desenvolvidos pela Secretaria Adjunta de Planejamento.
+      </p>
+    </div>
+    <div>
+      <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wide">Status das Atualizações</h4>
+      <ul class="space-y-2 text-sm text-institucional-100/70">
+        <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Última sincronização: hoje, 06h15</li>
+        <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 6 painéis monitorados, 6 operacionais</li>
+        <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Próxima atualização programada: 22h00</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wide">Suporte &amp; Contato</h4>
+      <p class="text-sm text-institucional-100/70">Equipe da SAP</p>
+      <a href="mailto:bi.suporte@institucional.gov.br" class="text-sm text-emerald-400 hover:text-emerald-300 transition inline-flex items-center gap-1.5 mt-1">
+        <i data-lucide="mail" class="w-3.5 h-3.5"></i> sap.betim.mg.gov.b
+      </a>
+    </div>
+  </div>
+  <div class="border-t border-white/10 py-4 text-center text-xs text-institucional-100/50">
+    © 2026 Portal de Inteligência de Dados.
+  </div>
+</footer>
+
+<!-- ============ MODAL / VISUALIZADOR DE DASHBOARD ============ -->
+<div id="modal-overlay" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 opacity-0">
+  <div id="modal-panel" class="absolute inset-2 sm:inset-4 md:inset-6 bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden opacity-0 translate-y-4">
+
+    <!-- Cabeçalho do modal -->
+    <div class="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-slate-200 bg-institucional-800 text-white shrink-0">
+      <div class="flex items-center gap-3 min-w-0">
+        <div id="modal-icon" class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+          <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <h3 id="modal-title" class="font-bold text-sm sm:text-base truncate">Título do Painel</h3>
+          <p id="modal-subtitle" class="text-[11px] sm:text-xs text-institucional-100/70 truncate">Categoria • Status</p>
+        </div>
+      </div>
+      <button id="modal-close-btn" class="inline-flex items-center gap-1.5 shrink-0 bg-white/10 hover:bg-white/20 active:scale-95 transition rounded-lg px-3 py-2 text-xs sm:text-sm font-medium">
+        <i data-lucide="x" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Voltar ao Hub</span>
+      </button>
+    </div>
+
+    <!-- Corpo do modal (iframe) -->
+    <div class="relative flex-1 bg-slate-100">
+      <div id="modal-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-100">
+        <div class="w-10 h-10 border-4 border-institucional-600/20 border-t-institucional-600 rounded-full animate-spin"></div>
+        <p class="text-sm text-slate-500">Carregando painel Power BI...</p>
+      </div>
+      <iframe id="modal-iframe" title="Visualizador de Dashboard" class="w-full h-full border-0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   1. MOCK DE DADOS — Dashboards cadastrados
+   ========================================================= */
+const dashboards = [
+  {
+    id: 1,
+    titulo: "Arrecadação",
+    categoria: "Receita",
+    descricao: "Acompanhamento diário de entradas das receitas do município.",
+    iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiNTg0ODk5ZjktOTU0MS00Mzc4LWIwYjItMzBmMDFlMjYwYTdlIiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9",
+    status: "Atualizado hoje",
+    statusColor: "emerald",
+    icone: "dollar-sign",
+    destaque: true
+  },
+  {
+    id: 2,
+    titulo: "Despesas",
+    categoria: "Despesa",
+    descricao: "Monitoramento das despesas do município",
+    iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiM2I4YTBkMGUtOGU2OS00MjA1LWE2NTYtMGY3MjEwY2JjN2Q3IiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9",
+    status: "Atualizado hoje",
+    statusColor: "emerald",
+    icone: "users",
+    destaque: false
+  },
+  {
+    id: 3,
+    titulo: "Emendas",
+    categoria: "Despesa",
+    descricao: "Monitoramento das emendas impositivas do município.",
+    iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiODlkN2Q4NTMtNzk4ZC00ODA0LWJkNTgtMWNmOGU2MzAxZGNlIiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9",
+    status: "Atualizado há 2h",
+    statusColor: "emerald",
+    icone: "trending-up",
+    destaque: false
+  },
+  {
+    id: 4,
+    titulo: "Folha",
+    categoria: "Despesa",
+    descricao: "Monitoramento dos gastos com folha de pessoal no município",
+    iframeUrl: "https://app.fabric.microsoft.com/view?r=eyJrIjoiMjJkZmNiMmYtMTk1OC00ZGQyLTg3ZTEtYWQ3NmRkM2VkYTNlIiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9",
+    status: "Atualizado ontem",
+    statusColor: "amber",
+    icone: "truck",
+    destaque: false
+  },
+  {
+    id: 5,
+    titulo: "Elaboração 2025",
+    categoria: "Elaboração",
+    descricao: "Elaboração orçamentária de 2025 para o ano de 2026",
+    iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiNjMxNmY2YjYtYTkzOS00MWE3LThhZjItNjdmYmUzZDhjNWNiIiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9&pageName=ReportSection4490c6fa130bd8c1d028",
+    status: "Atualizado hoje",
+    statusColor: "emerald",
+    icone: "wallet",
+    destaque: false
+  },
+  {
+    id: 6,
+    titulo: "Elaboração 2026",
+    categoria: "Elaboração",
+    descricao: "Elaboração orçamentária de 2026 para o ano de 2027",
+    iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiRECRUTAMENTO_SELECAO_DEMO",
+    status: "Atualizado há 5h",
+    statusColor: "amber",
+    icone: "user-plus",
+    destaque: false
+  }
+];
+
+/* =========================================================
+   2. ESTADO DA APLICAÇÃO
+   ========================================================= */
+const state = {
+  categoriaAtiva: "Todos",
+  termoBusca: "",
+  favoritos: new Set()
+};
+
+const categorias = ["Todos", "Receita", "Despesa", "Elaboração", "Favoritos"];
+
+const categoriaCores = {
+  "Receita": "bg-emerald-100 text-emerald-800",
+  "Despesa": "bg-violet-100 text-violet-800",
+  "Elaboração": "bg-blue-100 text-blue-800"
+};
+
+const statusDot = { emerald: "bg-emerald-500", amber: "bg-amber-400" };
+
+/* =========================================================
+   3. RENDER — Barra de filtros
+   ========================================================= */
+function renderFiltros() {
+  const bar = document.getElementById("filter-bar");
+  bar.innerHTML = categorias.map(cat => {
+    const isActive = state.categoriaAtiva === cat ? "active" : "";
+    const icon = cat === "Favoritos" ? '<i data-lucide="star" class="w-3.5 h-3.5"></i>' : "";
+    return `
+      <button
+        class="filter-btn ${isActive} shrink-0 inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-medium px-4 py-1.5 rounded-full text-institucional-50/90 hover:bg-white/15 transition"
+        data-categoria="${cat}"
+      >${icon}${cat}</button>
+    `;
+  }).join("");
+
+  bar.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.categoriaAtiva = btn.dataset.categoria;
+      renderFiltros();
+      renderGrid();
+    });
+  });
+  lucide.createIcons();
+}
+
+/* =========================================================
+   4. RENDER — Hero de destaque
+   ========================================================= */
+function renderHero() {
+  const destaque = dashboards.find(d => d.destaque);
+  if (!destaque) return;
+  const hero = document.getElementById("hero-section");
+  hero.innerHTML = `
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-institucional-800 via-institucional-700 to-institucional-600 text-white shadow-xl">
+      <div class="absolute -right-10 -top-10 w-64 h-64 rounded-full bg-white/5"></div>
+      <div class="absolute -right-24 bottom-0 w-80 h-80 rounded-full bg-emerald-500/10"></div>
+      <div class="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col md:flex-row md:items-center gap-8">
+        <div class="flex-1">
+          <span class="inline-flex items-center gap-1.5 bg-emerald-600/90 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4">
+            <i data-lucide="pin" class="w-3 h-3"></i> Painel principal em destaque
+          </span>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight mb-3">${destaque.titulo}</h1>
+          <p class="text-institucional-50/85 max-w-xl mb-6 leading-relaxed">${destaque.descricao}</p>
+          <div class="flex items-center gap-4">
+            <button
+              class="abrir-painel-btn inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition text-white font-semibold px-5 py-2.5 rounded-lg shadow-lg shadow-emerald-900/30"
+              data-id="${destaque.id}"
+            >
+              <i data-lucide="external-link" class="w-4 h-4"></i>
+              Abrir Painel Principal
+            </button>
+            <span class="hidden sm:inline-flex items-center gap-1.5 text-sm text-institucional-50/75">
+              <span class="w-2 h-2 rounded-full ${statusDot[destaque.statusColor]}"></span> ${destaque.status}
+            </span>
+          </div>
+        </div>
+        <div class="hidden md:flex w-40 h-40 rounded-2xl bg-white/10 ring-1 ring-white/15 items-center justify-center shrink-0">
+          <i data-lucide="${destaque.icone}" class="w-16 h-16 text-white/90"></i>
+        </div>
+      </div>
+    </div>
+  `;
+  hero.querySelector(".abrir-painel-btn").addEventListener("click", () => abrirModal(destaque.id));
+  lucide.createIcons();
+}
+
+/* =========================================================
+   5. RENDER — Grid de cards (com filtro + busca)
+   ========================================================= */
+function getFiltrados() {
+  return dashboards.filter(d => {
+    const porCategoria =
+      state.categoriaAtiva === "Todos" ? true :
+      state.categoriaAtiva === "Favoritos" ? state.favoritos.has(d.id) :
+      d.categoria === state.categoriaAtiva;
+
+    const termo = state.termoBusca.trim().toLowerCase();
+    const porBusca = termo === "" ||
+      d.titulo.toLowerCase().includes(termo) ||
+      d.descricao.toLowerCase().includes(termo);
+
+    return porCategoria && porBusca;
+  });
+}
+
+function renderGrid() {
+  const grid = document.getElementById("cards-grid");
+  const emptyState = document.getElementById("empty-state");
+  const resultsCount = document.getElementById("results-count");
+  const filtrados = getFiltrados();
+
+  resultsCount.textContent = `${filtrados.length} painel(is) encontrado(s)`;
+
+  if (filtrados.length === 0) {
+    grid.innerHTML = "";
+    emptyState.classList.remove("hidden");
+    emptyState.classList.add("flex");
+    return;
+  }
+  emptyState.classList.add("hidden");
+  emptyState.classList.remove("flex");
+
+  grid.innerHTML = filtrados.map((d, i) => {
+    const isFav = state.favoritos.has(d.id);
+    const badgeColor = categoriaCores[d.categoria] || "bg-slate-100 text-slate-700";
+    return `
+      <article class="card-enter group bg-white rounded-xl border border-slate-200 shadow-card hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-300 flex flex-col overflow-hidden" style="animation-delay:${i * 40}ms">
+        <div class="p-5 flex-1 flex flex-col">
+          <div class="flex items-start justify-between mb-4">
+            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeColor}">${d.categoria}</span>
+            <button
+              class="favorite-btn ${isFav ? 'is-fav' : ''} w-8 h-8 -mr-1 -mt-1 flex items-center justify-center rounded-full hover:bg-slate-100 transition"
+              data-id="${d.id}"
+              aria-label="Favoritar"
+              title="Favoritar"
+            >
+              <i data-lucide="star" class="w-4 h-4 text-slate-400 transition-colors"></i>
+            </button>
+          </div>
+
+          <div class="w-12 h-12 rounded-lg bg-institucional-50 flex items-center justify-center mb-4 group-hover:bg-institucional-100 transition-colors">
+            <i data-lucide="${d.icone}" class="w-6 h-6 text-institucional-700"></i>
+          </div>
+
+          <h3 class="font-bold text-slate-800 mb-1.5 leading-snug">${d.titulo}</h3>
+          <p class="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-4">${d.descricao}</p>
+
+          <div class="mt-auto flex items-center gap-1.5 text-xs text-slate-500 mb-4">
+            <span class="w-2 h-2 rounded-full ${statusDot[d.statusColor]}"></span>
+            ${d.status}
+          </div>
+
+          <button
+            class="acessar-painel-btn w-full inline-flex items-center justify-center gap-2 bg-institucional-800 hover:bg-institucional-900 active:scale-[0.98] transition text-white text-sm font-semibold py-2.5 rounded-lg"
+            data-id="${d.id}"
+          >
+            <i data-lucide="monitor-play" class="w-4 h-4"></i>
+            Acessar Painel
+          </button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  // Listeners: abrir painel
+  grid.querySelectorAll(".acessar-painel-btn").forEach(btn => {
+    btn.addEventListener("click", () => abrirModal(Number(btn.dataset.id)));
+  });
+
+  // Listeners: favoritar
+  grid.querySelectorAll(".favorite-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFavorito(Number(btn.dataset.id));
+    });
+  });
+
+  lucide.createIcons();
+}
+
+function toggleFavorito(id) {
+  if (state.favoritos.has(id)) {
+    state.favoritos.delete(id);
+  } else {
+    state.favoritos.add(id);
+  }
+  renderGrid();
+}
+
+/* =========================================================
+   6. MODAL — Abrir / Fechar
+   ========================================================= */
+const modalOverlay = document.getElementById("modal-overlay");
+const modalPanel = document.getElementById("modal-panel");
+const modalTitle = document.getElementById("modal-title");
+const modalSubtitle = document.getElementById("modal-subtitle");
+const modalIconWrap = document.getElementById("modal-icon");
+const modalIframe = document.getElementById("modal-iframe");
+const modalLoading = document.getElementById("modal-loading");
+
+function abrirModal(id) {
+  const d = dashboards.find(x => x.id === id);
+  if (!d) return;
+
+  modalTitle.textContent = d.titulo;
+  modalSubtitle.textContent = `${d.categoria} • ${d.status}`;
+  modalIconWrap.innerHTML = `<i data-lucide="${d.icone}" class="w-5 h-5"></i>`;
+
+  modalLoading.classList.remove("hidden");
+  modalIframe.src = d.iframeUrl;
+
+  document.body.style.overflow = "hidden";
+  modalOverlay.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    modalOverlay.classList.remove("opacity-0");
+    modalPanel.classList.remove("opacity-0", "translate-y-4");
+  });
+
+  lucide.createIcons();
+}
+
+function fecharModal() {
+  modalOverlay.classList.add("opacity-0");
+  modalPanel.classList.add("opacity-0", "translate-y-4");
+  document.body.style.overflow = "";
+  setTimeout(() => {
+    modalOverlay.classList.add("hidden");
+    modalIframe.src = "about:blank";
+  }, 300);
+}
+
+document.getElementById("modal-close-btn").addEventListener("click", fecharModal);
+modalOverlay.addEventListener("click", (e) => {
+  if (e.target === modalOverlay) fecharModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !modalOverlay.classList.contains("hidden")) fecharModal();
+});
+modalIframe.addEventListener("load", () => {
+  modalLoading.classList.add("hidden");
+});
+
+/* =========================================================
+   7. BUSCA
+   ========================================================= */
+document.getElementById("search-input").addEventListener("input", (e) => {
+  state.termoBusca = e.target.value;
+  renderGrid();
+});
+
+/* =========================================================
+   8. INICIALIZAÇÃO
+   ========================================================= */
+function init() {
+  renderFiltros();
+  renderHero();
+  renderGrid();
+  lucide.createIcons();
+}
+init();
+</script>
+
+</body>
+</html>
