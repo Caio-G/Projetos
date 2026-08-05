@@ -72,11 +72,6 @@
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
   }
 
-  .favorite-btn.is-fav i {
-    fill: #f59e0b;
-    stroke: #f59e0b;
-  }
-
   .filter-btn.active {
     background-color: #0056b3;
     color: white;
@@ -352,7 +347,7 @@ const state = {
   favoritos: new Set()
 };
 
-const categorias = ["Todos", "Receita", "Despesa", "Elaboração", "Favoritos"];
+const categorias = ["Todos", "Receita", "Despesa", "Elaboração"];
 
 const categoriaCores = {
   "Receita": "bg-emerald-100 text-emerald-800",
@@ -481,14 +476,6 @@ function renderGrid() {
           <div class="flex items-center gap-1.5">
             <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeColor}">${d.categoria}</span>
             <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeToolColor}">${d.ferramenta}</span>
-            <button
-              class="favorite-btn ${isFav ? 'is-fav' : ''} w-8 h-8 -mr-1 -mt-1 flex items-right justify-right rounded-full hover:bg-slate-100 transition"
-              data-id="${d.id}"
-              aria-label="Favoritar"
-              title="Favoritar"
-            >
-              <i data-lucide="star" class="w-4 h-4 text-slate-400 transition-colors"></i>
-            </button>
           </div>
 
           <div class="w-12 h-12 rounded-lg bg-institucional-50 flex items-center justify-center mb-4 group-hover:bg-institucional-100 transition-colors">
@@ -520,25 +507,6 @@ function renderGrid() {
     btn.addEventListener("click", () => abrirModal(Number(btn.dataset.id)));
   });
 
-  // Listeners: favoritar
-  grid.querySelectorAll(".favorite-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleFavorito(Number(btn.dataset.id));
-    });
-  });
-
-  lucide.createIcons();
-}
-
-function toggleFavorito(id) {
-  if (state.favoritos.has(id)) {
-    state.favoritos.delete(id);
-  } else {
-    state.favoritos.add(id);
-  }
-  renderGrid();
-}
 
 /* =========================================================
    6. MODAL — Abrir / Fechar
