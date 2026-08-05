@@ -204,7 +204,7 @@
     </div>
   </div>
   <div class="border-t border-white/10 py-4 text-center text-xs text-institucional-100/50">
-    © 2026 Portal de Inteligência de Dados.
+    © 2026 Portal de Inteligência de Dados. v. 1.0
   </div>
 </footer>
 
@@ -328,6 +328,18 @@ const dashboards = [
     statusColor: "amber",
     icone: "user-plus",
     destaque: false
+  },
+  {
+    id: 8,
+    titulo: "Despesas",
+    categoria: "Despesa",
+    ferramenta: "Google Data Studio",
+    descricao: "Monitoramento das despesas do município.",
+    iframeUrl: "https://datastudio.google.com/embed/reporting/c06fa8ce-132b-4da5-a182-09c573014760/page/p_223ha4c8zd",
+    status: "Atualizado há 5h",
+    statusColor: "amber",
+    icone: "user-plus",
+    destaque: false
   }
 ];
 
@@ -346,6 +358,11 @@ const categoriaCores = {
   "Receita": "bg-emerald-100 text-emerald-800",
   "Despesa": "bg-violet-100 text-violet-800",
   "Elaboração": "bg-blue-100 text-blue-800"
+};
+
+const ferramentaCores = {
+  "Power BI": "bg-orange-100 text-orange-800",
+  "Google Data Studio": "bg-blue-150 text-blue-500",
 };
 
 const statusDot = { emerald: "bg-emerald-500", amber: "bg-amber-400" };
@@ -456,11 +473,13 @@ function renderGrid() {
   grid.innerHTML = filtrados.map((d, i) => {
     const isFav = state.favoritos.has(d.id);
     const badgeColor = categoriaCores[d.categoria] || "bg-slate-100 text-slate-700";
+    const badgeToolColor = ferramentaCores[d.ferramenta] || "bg-slate-100 text-slate-700";
     return `
       <article class="card-enter group bg-white rounded-xl border border-slate-200 shadow-card hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-300 flex flex-col overflow-hidden" style="animation-delay:${i * 40}ms">
         <div class="p-5 flex-1 flex flex-col">
           <div class="flex items-start justify-between mb-4">
-            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeColor}">${d.categoria}${d.ferramenta}</span>
+            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeColor}">${d.categoria}</span>
+            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeToolColor}">${d.ferramenta}</span>
             <button
               class="favorite-btn ${isFav ? 'is-fav' : ''} w-8 h-8 -mr-1 -mt-1 flex items-center justify-center rounded-full hover:bg-slate-100 transition"
               data-id="${d.id}"
