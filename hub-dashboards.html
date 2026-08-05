@@ -477,15 +477,19 @@ function renderGrid() {
     return `
       <article class="card-enter group bg-white rounded-xl border border-slate-200 shadow-card hover:shadow-cardHover hover:-translate-y-0.5 transition-all duration-300 flex flex-col overflow-hidden" style="animation-delay:${i * 40}ms">
         <div class="p-5 flex-1 flex flex-col">
-          <div class="flex items-center gap-1.5">
-            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeColor}">${d.categoria}</span>
-            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeToolColor}">${d.ferramenta}</span>
+          
+          <div class="flex items-right gap-1.5">
             <button
               class="favorite-btn ${isFav ? 'is-fav' : ''} w-8 h-8 -mr-1 -mt-1 flex items-center justify-center rounded-full hover:bg-slate-100 transition"
               data-id="${d.id}"
               aria-label="Favoritar"
               title="Favoritar"
             >
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeColor}">${d.categoria}</span>
+            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeToolColor}">${d.ferramenta}</span>
               <i data-lucide="star" class="w-4 h-4 text-slate-400 transition-colors"></i>
             </button>
           </div>
