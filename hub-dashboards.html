@@ -233,7 +233,7 @@
     <div class="relative flex-1 bg-slate-100">
       <div id="modal-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-100">
         <div class="w-10 h-10 border-4 border-institucional-600/20 border-t-institucional-600 rounded-full animate-spin"></div>
-        <p class="text-sm text-slate-500">Carregando painel Power BI...</p>
+        <p class="text-sm text-slate-500">Carregando painel ...</p>
       </div>
       <iframe id="modal-iframe" title="Visualizador de Dashboard" class="w-full h-full border-0" allowfullscreen></iframe>
     </div>
@@ -249,8 +249,9 @@ const dashboards = [
     id: 1,
     titulo: "Arrecadação",
     categoria: "Receita",
+    ferramenta: "Power BI",
     descricao: "Acompanhamento diário de entradas das receitas do município.",
-    iframeUrl: "https://datastudio.google.com/embed/reporting/fb5090a1-1f31-473b-b200-edd7379fe0f0/page/p_f2bhfg56zd",
+    iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiNTg0ODk5ZjktOTU0MS00Mzc4LWIwYjItMzBmMDFlMjYwYTdlIiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9",
     status: "Atualizado hoje",
     statusColor: "emerald",
     icone: "dollar-sign",
@@ -260,6 +261,7 @@ const dashboards = [
     id: 2,
     titulo: "Despesas",
     categoria: "Despesa",
+    ferramenta: "Power BI",
     descricao: "Monitoramento das despesas do município",
     iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiM2I4YTBkMGUtOGU2OS00MjA1LWE2NTYtMGY3MjEwY2JjN2Q3IiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9",
     status: "Atualizado hoje",
@@ -271,6 +273,7 @@ const dashboards = [
     id: 3,
     titulo: "Emendas",
     categoria: "Despesa",
+    ferramenta: "Power BI",
     descricao: "Monitoramento das emendas impositivas do município.",
     iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiODlkN2Q4NTMtNzk4ZC00ODA0LWJkNTgtMWNmOGU2MzAxZGNlIiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9",
     status: "Atualizado há 2h",
@@ -282,6 +285,7 @@ const dashboards = [
     id: 4,
     titulo: "Folha",
     categoria: "Despesa",
+    ferramenta: "Power BI",
     descricao: "Monitoramento dos gastos com folha de pessoal no município",
     iframeUrl: "https://app.fabric.microsoft.com/view?r=eyJrIjoiMjJkZmNiMmYtMTk1OC00ZGQyLTg3ZTEtYWQ3NmRkM2VkYTNlIiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9",
     status: "Atualizado ontem",
@@ -293,6 +297,7 @@ const dashboards = [
     id: 5,
     titulo: "Elaboração 2025",
     categoria: "Elaboração",
+    ferramenta: "Power BI",
     descricao: "Elaboração orçamentária de 2025 para o ano de 2026",
     iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiNjMxNmY2YjYtYTkzOS00MWE3LThhZjItNjdmYmUzZDhjNWNiIiwidCI6ImZiNTdmZjlkLWJjNjMtNGE2ZS1iMTQ3LTI5NjE3NmVjZTVlYyJ9&pageName=ReportSection4490c6fa130bd8c1d028",
     status: "Atualizado hoje",
@@ -304,8 +309,21 @@ const dashboards = [
     id: 6,
     titulo: "Elaboração 2026",
     categoria: "Elaboração",
+    ferramenta: "Power BI",
     descricao: "Elaboração orçamentária de 2026 para o ano de 2027",
     iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiRECRUTAMENTO_SELECAO_DEMO",
+    status: "Atualizado há 5h",
+    statusColor: "amber",
+    icone: "user-plus",
+    destaque: false
+  },
+  {
+    id: 7,
+    titulo: "Arrecadação",
+    categoria: "Receita",
+    ferramenta: "Google Data Studio",
+    descricao: "Acompanhamento diário de entradas das receitas do município.",
+    iframeUrl: "https://datastudio.google.com/embed/reporting/fb5090a1-1f31-473b-b200-edd7379fe0f0/page/p_f2bhfg56zd",
     status: "Atualizado há 5h",
     statusColor: "amber",
     icone: "user-plus",
@@ -443,6 +461,7 @@ function renderGrid() {
         <div class="p-5 flex-1 flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeColor}">${d.categoria}</span>
+            <span class="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${badgeColor}">${d.ferramenta}</span>
             <button
               class="favorite-btn ${isFav ? 'is-fav' : ''} w-8 h-8 -mr-1 -mt-1 flex items-center justify-center rounded-full hover:bg-slate-100 transition"
               data-id="${d.id}"
